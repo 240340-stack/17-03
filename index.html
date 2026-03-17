@@ -72,6 +72,14 @@ window.processLike = async (id) => {
           name: document.getElementById('name').value,
           email: document.getElementById('email').value,
           likes: 0,
+       
+const q = query(
+  collection(db, "requests"),
+  orderBy("timestamp", "desc")  /
+);
+
+onSnapshot(q, (snapshot) => {  // 
+});
           timestamp: serverTimestamp()
         });
         document.getElementById('email').value = "";
