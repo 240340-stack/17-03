@@ -26,14 +26,14 @@
 </head>
 <body>
 
-  <!-- БЛОК АВТОРИЗАЦИИ -->
+
   <div class="container">
     <h3>Облачное приложение</h3>
 
-    <!-- Кнопка входа (показывается если НЕ авторизован) -->
+
     <button id="loginBtn">🔐 Войти через Google</button>
 
-    <!-- Информация о пользователе (показывается если авторизован) -->
+
     <div id="userInfo" style="display:none;">
       <div class="auth-bar">
         <img id="userPhoto" class="user-avatar" src="" alt="avatar">
@@ -43,14 +43,14 @@
     </div>
   </div>
 
-  <!-- ФОРМА ОТПРАВКИ (скрыта до входа) -->
+
   <div id="messageForm" class="container" style="display:none;">
     <h4>Создать запись</h4>
     <input type="text" id="name" placeholder="Ваше имя" readonly>
     <input type="email" id="email" placeholder="Ваш Email" readonly>
     <textarea id="content" placeholder="Что у вас нового?"></textarea>
 
-    <!-- ЭТАП V: Загрузка картинки -->
+
     <label class="upload-label" for="imageInput">📎 Прикрепить картинку</label>
     <input type="file" id="imageInput" accept="image/*" style="display:none;">
     <img id="imagePreview" alt="preview">
@@ -58,7 +58,7 @@
     <button id="mainBtn">Опубликовать в облако</button>
   </div>
 
-  <!-- ЛЕНТА ПОСТОВ -->
+
   <div id="feed" style="width: 100%; max-width: 500px;"></div>
 
   <script type="module">
@@ -91,7 +91,7 @@
     const provider = new GoogleAuthProvider();
     const storage = getStorage(app);
 
-    // === ЭЛЕМЕНТЫ ===
+   
     const loginBtn = document.getElementById('loginBtn');
     const logoutBtn = document.getElementById('logoutBtn');
     const userInfo = document.getElementById('userInfo');
@@ -99,14 +99,14 @@
     const imageInput = document.getElementById('imageInput');
     const imagePreview = document.getElementById('imagePreview');
 
-    // === ВХОД / ВЫХОД ===
+  
     loginBtn.onclick = () => signInWithPopup(auth, provider);
     logoutBtn.onclick = () => signOut(auth);
 
-    // === СЛЕЖЕНИЕ ЗА СОСТОЯНИЕМ АВТОРИЗАЦИИ ===
+  
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        // Пользователь вошёл
+    
         loginBtn.style.display = 'none';
         userInfo.style.display = 'flex';
         messageForm.style.display = 'block';
@@ -116,14 +116,14 @@
         document.getElementById('name').value = user.displayName;
         document.getElementById('email').value = user.email;
       } else {
-        // Пользователь вышел
+
         loginBtn.style.display = 'block';
         userInfo.style.display = 'none';
         messageForm.style.display = 'none';
       }
     });
 
-    // === ЭТАП V: ПРЕДПРОСМОТР КАРТИНКИ ===
+
     imageInput.onchange = () => {
       const file = imageInput.files[0];
       if (file) {
@@ -136,7 +136,7 @@
       }
     };
 
-    // === ПУБЛИКАЦИЯ ЗАПИСИ ===
+    
     document.getElementById('mainBtn').onclick = async () => {
       const content = document.getElementById('content').value;
       if (!content) return alert('Введите текст сообщения!');
@@ -148,7 +148,7 @@
       try {
         let imageUrl = null;
 
-        // Загрузка картинки если выбрана
+       
         const file = imageInput.files[0];
         if (file) {
           const storageRef = ref(storage, 'images/' + Date.now() + '_' + file.name);
@@ -178,12 +178,12 @@
       btn.textContent = 'Опубликовать в облако';
     };
 
-    // === ЛАЙКИ ===
+  
     window.processLike = async (id) => {
       await updateDoc(doc(db, "requests", id), { likes: increment(1) });
     };
 
-    // === РЕАКТИВНАЯ ЛЕНТА ===
+    
     const q = query(collection(db, "requests"), orderBy("timestamp", "desc"));
     onSnapshot(q, (snapshot) => {
       const feed = document.getElementById('feed');
@@ -208,31 +208,3 @@
   </script>
 </body>
 </html>
-```
-
----
-
-## Пошаговое выполнение задания
-
-**Этап I — Firebase Console:**
-1. Открой [console.firebase.google.com](https://console.firebase.google.com) → твой проект
-2. Слева: **Build → Authentication → Get Started**
-3. Вкладка **Sign-in method → Add new provider → Google**
-4. Включи переключатель, укажи свою почту → **Save**
-5. Вкладка **Settings → Authorized domains → Add domain** → введи `duisenbekalmas.github.io`
-
-**Этап II — Rules в Firestore:**
-
-Перейди **Firestore → Rules** и вставь:
-```
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /requests/{docId} {
-      allow read: if true;
-      allow create: if request.auth != null;
-      allow update: if request.auth != null;
-      allow delete: if false;
-    }
-  }
-}
