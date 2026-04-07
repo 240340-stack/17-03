@@ -1,79 +1,55 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DirectMSG — Исправлено</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-  <style>
-    :root { --bg: #0d0d14; --surface: #13131e; --border: #2a2a40; --accent: #7c6fff; --text: #e4e4f0; --muted: #6b6b88; }
-    body { font-family: 'Syne', sans-serif; background: var(--bg); color: var(--text); margin: 0; height: 100vh; display: flex; flex-direction: column; }
-    .hidden { display: none !important; }
-    #auth-screen { flex: 1; display: flex; align-items: center; justify-content: center; }
-    .btn-google { padding: 15px 30px; background: #fff; border: none; border-radius: 12px; cursor: pointer; font-weight: 700; }
-    .main-layout { display: flex; flex: 1; overflow: hidden; }
-    .sidebar { width: 300px; border-right: 1px solid var(--border); background: var(--surface); display: flex; flex-direction: column; }
-    .chat-area { flex: 1; display: flex; flex-direction: column; position: relative; }
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 100; }
-    .modal { background: var(--surface); padding: 30px; border-radius: 20px; width: 400px; border: 1px solid var(--border); }
-    .user-found-item { padding: 12px; border-radius: 10px; cursor: pointer; margin-top: 10px; border: 1px solid transparent; transition: 0.2s; }
-    .user-found-item:hover { background: rgba(255,255,255,0.05); }
-    .selected-user { background: rgba(124,111,255,0.2) !important; border-color: var(--accent) !important; }
-    .search-inp, .modal-input { width: 100%; padding: 12px; background: #1c1c2e; border: 1px solid var(--border); border-radius: 10px; color: #fff; margin-bottom: 10px; box-sizing: border-box; }
-    .btn-start { width: 100%; padding: 12px; background: var(--accent); border: none; border-radius: 10px; color: #fff; font-weight: 700; cursor: pointer; }
-    #messagesArea { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
-  </style>
+    <meta charset="UTF-8">
+    <title>DM FIX</title>
+    <style>
+        body { background: #0d0d14; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: #13131e; padding: 40px; border-radius: 20px; border: 1px solid #2a2a40; text-align: center; width: 350px; }
+        button { background: #7c6fff; color: white; border: none; padding: 12px 20px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 8px; border: 1px solid #2a2a40; background: #1c1c2e; color: white; box-sizing: border-box; }
+        .user-item { padding: 10px; border: 1px solid #2a2a40; margin-top: 5px; cursor: pointer; border-radius: 8px; }
+        .user-item:hover { background: #1c1c2e; }
+        .selected { border-color: #7c6fff; background: rgba(124, 111, 255, 0.2); }
+        .hidden { display: none; }
+    </style>
 </head>
 <body>
 
-<div id="auth-screen">
-  <button class="btn-google" id="loginBtn">Войти через Google</button>
+<div id="auth-screen" class="card">
+    <h2>DirectMSG</h2>
+    <button id="loginBtn">Войти через Google</button>
 </div>
 
-<div id="app" class="hidden">
-  <div style="padding: 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between;">
-    <b>DirectMSG</b>
-    <button id="logoutBtn" style="background:none; color:var(--muted); border:none; cursor:pointer;">Выйти</button>
-  </div>
-  <div class="main-layout">
-    <div class="sidebar">
-      <div style="padding: 20px; display: flex; justify-content: space-between;">
-        <span>ЧАТЫ</span>
-        <button id="newDmBtn" style="background:var(--accent); border:none; color:#fff; border-radius:5px; cursor:pointer;">+</button>
-      </div>
-      <div id="threadsList"></div>
+<div id="app" class="card hidden">
+    <div style="display:flex; justify-content: space-between; align-items: center;">
+        <h4 id="userName">Меню</h4>
+        <button id="logoutBtn" style="width: auto; padding: 5px 10px; font-size: 10px;">Выйти</button>
     </div>
-    <div class="chat-area">
-        <div id="messagesArea"></div>
-        <div id="inputArea" class="hidden" style="padding: 20px; border-top: 1px solid var(--border);">
-            <input type="text" id="msgInput" class="search-inp" placeholder="Сообщение...">
-        </div>
-    </div>
-  </div>
+    <button id="openModalBtn">+ Новый чат</button>
+    <div id="threadsList" style="margin-top:20px; text-align: left;"></div>
 </div>
 
-<div id="newDmModal" class="modal-overlay hidden">
-  <div class="modal">
-    <h3>Новый диалог</h3>
-    <input type="text" id="searchEmailInp" class="modal-input" placeholder="Введите email...">
-    <div id="usersFound"></div>
-    <button id="startDmBtn" class="btn-start" style="margin-top: 15px;">Начать диалог</button>
-    <button id="cancelModal" style="background:none; border:none; color:var(--muted); width:100%; margin-top:10px; cursor:pointer;">Отмена</button>
-  </div>
+<div id="modal" class="card hidden" style="position: fixed; z-index: 10;">
+    <h3>Поиск</h3>
+    <input type="text" id="searchInp" placeholder="Введите email...">
+    <div id="results"></div>
+    <button id="startBtn">Начать</button>
+    <button id="closeBtn" style="background: #2a2a40;">Отмена</button>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, doc, setDoc, getDoc, getDocs, query, where, orderBy, onSnapshot, serverTimestamp, limit } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB_PU4Y1et2-cf2VGWO8cJdIDaZwMJQUB8",
-  authDomain: "po241-gulmamedov.firebaseapp.com",
-  projectId: "po241-gulmamedov",
-  storageBucket: "po241-gulmamedov.appspot.com",
-  messagingSenderId: "1045987096320",
-  appId: "1:1045987096320:web:bcc59339a37de3fb60e5e5"
+    apiKey: "AIzaSyB_PU4Y1et2-cf2VGWO8cJdIDaZwMJQUB8",
+    authDomain: "po241-gulmamedov.firebaseapp.com",
+    projectId: "po241-gulmamedov",
+    storageBucket: "po241-gulmamedov.appspot.com",
+    messagingSenderId: "1045987096320",
+    appId: "1:1045987096320:web:bcc59339a37de3fb60e5e5"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -81,74 +57,75 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-let currentUser = null;
-let selectedTargetUser = null;
+let me = null;
+let target = null;
 
-// AUTH
+// АВТОРИЗАЦИЯ
 onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    currentUser = user;
-    await setDoc(doc(db, 'users', user.uid), { uid: user.uid, email: user.email, displayName: user.displayName }, { merge: true });
-    document.getElementById('auth-screen').classList.add('hidden');
-    document.getElementById('app').classList.remove('hidden');
-  } else {
-    document.getElementById('auth-screen').classList.remove('hidden');
-    document.getElementById('app').classList.add('hidden');
-  }
+    if (user) {
+        me = user;
+        await setDoc(doc(db, "users", user.uid), { uid: user.uid, email: user.email, displayName: user.displayName }, { merge: true });
+        document.getElementById('auth-screen').classList.add('hidden');
+        document.getElementById('app').classList.remove('hidden');
+        document.getElementById('userName').innerText = user.displayName;
+    } else {
+        document.getElementById('auth-screen').classList.remove('hidden');
+        document.getElementById('app').classList.add('hidden');
+    }
 });
 
-document.getElementById('loginBtn').onclick = () => signInWithPopup(auth, provider);
+document.getElementById('loginBtn').onclick = () => signInWithPopup(auth, provider).catch(e => alert("Ошибка входа: " + e.message));
 document.getElementById('logoutBtn').onclick = () => signOut(auth);
 
-// MODAL LOGIC
-document.getElementById('newDmBtn').onclick = () => {
-  document.getElementById('newDmModal').classList.remove('hidden');
-  document.getElementById('usersFound').innerHTML = '';
-  selectedTargetUser = null;
+// ПОИСК
+document.getElementById('openModalBtn').onclick = () => {
+    document.getElementById('modal').classList.remove('hidden');
+    document.getElementById('results').innerHTML = '';
+    target = null;
+};
+document.getElementById('closeBtn').onclick = () => document.getElementById('modal').classList.add('hidden');
+
+document.getElementById('searchInp').oninput = async (e) => {
+    const val = e.target.value.toLowerCase().trim();
+    if (val.length < 3) return;
+
+    const q = query(collection(db, "users"), where("email", ">=", val), where("email", "<=", val + "\uf8ff"));
+    const snap = await getDocs(q);
+    const res = document.getElementById('results');
+    res.innerHTML = '';
+
+    snap.forEach(d => {
+        const u = d.data();
+        if (u.uid === me.uid) return;
+        const div = document.createElement('div');
+        div.className = 'user-item';
+        div.innerHTML = `<b>${u.displayName}</b><br>${u.email}`;
+        div.onclick = () => {
+            target = u;
+            document.querySelectorAll('.user-item').forEach(el => el.classList.remove('selected'));
+            div.classList.add('selected');
+        };
+        res.appendChild(div);
+    });
 };
 
-document.getElementById('cancelModal').onclick = () => document.getElementById('newDmModal').classList.add('hidden');
-
-// SEARCH
-document.getElementById('searchEmailInp').oninput = async (e) => {
-  const val = e.target.value.trim().toLowerCase();
-  if (val.length < 3) return;
-  
-  const q = query(collection(db, 'users'), where('email', '>=', val), where('email', '<=', val + '\uf8ff'), limit(5));
-  const snap = await getDocs(q);
-  const container = document.getElementById('usersFound');
-  container.innerHTML = '';
-  
-  snap.forEach(d => {
-    const u = d.data();
-    if (u.uid === currentUser.uid) return;
+// СОЗДАНИЕ ЧАТА
+document.getElementById('startBtn').onclick = async () => {
+    if (!target) return alert("Выбери человека из списка!");
     
-    const div = document.createElement('div');
-    div.className = 'user-found-item';
-    div.innerHTML = `<b>${u.displayName}</b><br><small>${u.email}</small>`;
-    div.onclick = () => {
-      selectedTargetUser = u;
-      document.querySelectorAll('.user-found-item').forEach(el => el.classList.remove('selected-user'));
-      div.classList.add('selected-user');
-    };
-    container.appendChild(div);
-  });
-};
-
-// START DIALOG
-document.getElementById('startDmBtn').onclick = async () => {
-  if (!selectedTargetUser) return alert("Выбери пользователя!");
-  
-  const tid = [currentUser.uid, selectedTargetUser.uid].sort().join('__');
-  await setDoc(doc(db, 'threads', tid), {
-    participants: [currentUser.uid, selectedTargetUser.uid],
-    lastAt: serverTimestamp()
-  }, { merge: true });
-  
-  document.getElementById('newDmModal').classList.add('hidden');
-  alert("Диалог создан!"); 
+    try {
+        const chatId = [me.uid, target.uid].sort().join("__");
+        await setDoc(doc(db, "threads", chatId), {
+            participants: [me.uid, target.uid],
+            lastAt: serverTimestamp()
+        }, { merge: true });
+        
+        alert("Успех! Диалог создан.");
+        document.getElementById('modal').classList.add('hidden');
+    } catch (e) {
+        alert("Ошибка базы: " + e.message);
+    }
 };
 </script>
 </body>
 </html>
- 
