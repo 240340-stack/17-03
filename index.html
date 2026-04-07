@@ -2,74 +2,85 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>DirectMSG — Рабочий Чат</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DirectMSG — Full Fix</title>
     <style>
-        :root { --bg: #0d0d14; --surf: #13131e; --accent: #7c6fff; --border: #2a2a40; }
-        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; height: 100vh; display: flex; }
-        .sidebar { width: 300px; border-right: 1px solid var(--border); display: flex; flex-direction: column; background: var(--surf); }
-        .main { flex: 1; display: flex; flex-direction: column; }
-        .hidden { display: none !important; }
+        :root { --bg: #0d0d14; --surf: #13131e; --accent: #7c6fff; --border: #2a2a40; --text: #e4e4f0; --muted: #6b6b88; }
+        body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; height: 100vh; display: flex; overflow: hidden; }
         
-        /* Список чатов */
+        /* Sidebar */
+        .sidebar { width: 320px; border-right: 1px solid var(--border); display: flex; flex-direction: column; background: var(--surf); }
+        .sidebar-header { padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        #threadsList { flex: 1; overflow-y: auto; }
         .thread-item { padding: 15px; border-bottom: 1px solid var(--border); cursor: pointer; transition: 0.2s; }
         .thread-item:hover { background: rgba(255,255,255,0.05); }
-        .thread-item.active { border-left: 4px solid var(--accent); background: rgba(124,111,255,0.1); }
-        
-        /* Окно сообщений */
-        #messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
-        .msg { max-width: 70%; padding: 10px 15px; border-radius: 12px; font-size: 14px; line-height: 1.4; }
-        .msg.me { align-self: flex-end; background: var(--accent); }
-        .msg.them { align-self: flex-start; background: var(--border); }
-        
-        /* Ввод */
-        .input-area { padding: 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; }
-        input { flex: 1; background: #1c1c2e; border: 1px solid var(--border); color: white; padding: 12px; border-radius: 10px; }
-        button { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: bold; }
-        
-        /* Модалка */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 100; }
-        .modal-content { background: var(--surf); padding: 30px; border-radius: 20px; width: 350px; border: 1px solid var(--border); }
-        .user-res { padding: 10px; margin-top: 5px; cursor: pointer; border-radius: 8px; border: 1px solid transparent; }
-        .user-res.selected { border-color: var(--accent); background: rgba(124,111,255,0.1); }
+        .thread-item.active { background: rgba(124,111,255,0.1); border-left: 4px solid var(--accent); }
+
+        /* Main Chat Area */
+        .main { flex: 1; display: flex; flex-direction: column; position: relative; background: var(--bg); }
+        #chatHeader { padding: 15px 20px; border-bottom: 1px solid var(--border); font-weight: bold; background: var(--surf); }
+        #messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+        .msg { max-width: 75%; padding: 10px 16px; border-radius: 14px; font-size: 14px; line-height: 1.5; word-wrap: break-word; }
+        .msg.me { align-self: flex-end; background: var(--accent); color: white; border-bottom-right-radius: 2px; }
+        .msg.them { align-self: flex-start; background: var(--border); color: var(--text); border-bottom-left-radius: 2px; }
+
+        /* Input Area */
+        .input-area { padding: 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; background: var(--surf); }
+        input[type="text"] { flex: 1; background: #1c1c2e; border: 1px solid var(--border); color: white; padding: 12px; border-radius: 10px; outline: none; }
+        button { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        button:hover { opacity: 0.8; }
+        button:disabled { background: var(--muted); }
+
+        /* Modals & Screens */
+        .full-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 500; }
+        .modal { background: var(--surf); padding: 30px; border-radius: 20px; width: 360px; border: 1px solid var(--border); }
+        .user-res { padding: 12px; margin-top: 8px; cursor: pointer; border-radius: 10px; border: 1px solid transparent; background: rgba(255,255,255,0.03); }
+        .user-res.selected { border-color: var(--accent); background: rgba(124,111,255,0.15); }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-<div id="auth-screen" style="position:fixed; inset:0; background:var(--bg); display:flex; align-items:center; justify-content:center; z-index:200;">
-    <button id="loginBtn" style="font-size:18px;">Войти через Google</button>
+<div id="auth-screen" class="full-screen">
+    <div style="text-align:center;">
+        <h1 style="margin-bottom:20px;">DirectMSG</h1>
+        <button id="loginBtn" style="padding: 15px 40px; font-size: 16px;">Войти через Google</button>
+    </div>
 </div>
 
 <div class="sidebar">
-    <div style="padding: 20px; border-bottom: 1px solid var(--border); display:flex; justify-content:space-between;">
-        <b>Чаты</b>
-        <button id="addChat" style="padding: 2px 10px;">+</button>
+    <div class="sidebar-header">
+        <b id="myDisplayName">Загрузка...</b>
+        <button id="addChatBtn" style="padding: 5px 12px;">+</button>
     </div>
     <div id="threadsList"></div>
+    <button id="logoutBtn" style="background:none; color:var(--muted); font-size:12px; margin: 10px;">Выйти</button>
 </div>
 
 <div class="main">
-    <div id="chatHeader" style="padding:15px; border-bottom:1px solid var(--border);">Выберите чат</div>
+    <div id="chatHeader">Выберите чат из списка слева</div>
     <div id="messages"></div>
     <div id="inputBox" class="input-area hidden">
-        <input type="text" id="msgInp" placeholder="Напишите сообщение...">
-        <button id="sendBtn">➤</button>
+        <input type="text" id="msgInp" placeholder="Напишите сообщение..." autocomplete="off">
+        <button id="sendBtn">ОТПРАВИТЬ</button>
     </div>
 </div>
 
-<div id="modal" class="modal hidden">
-    <div class="modal-content">
-        <h3>Новый чаt</h3>
-        <input type="text" id="searchInp" placeholder="Email...">
-        <div id="results"></div>
-        <button id="startBtn" style="margin-top:15px;">Создать</button>
-        <button id="closeBtn" style="background:none; margin-top:5px;">Отмена</button>
+<div id="newDmModal" class="modal-overlay hidden">
+    <div class="modal">
+        <h2 style="margin-top:0;">Новый чат</h2>
+        <input type="text" id="searchInp" placeholder="Введите email для поиска...">
+        <div id="results" style="max-height: 200px; overflow-y: auto; margin-top:10px;"></div>
+        <button id="startChatBtn" style="margin-top:20px;">СОЗДАТЬ ДИАЛОГ</button>
+        <button id="closeModal" style="background:none; color:var(--muted); margin-top:10px;">Отмена</button>
     </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, onSnapshot, addDoc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, onSnapshot, addDoc, serverTimestamp, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyB_PU4Y1et2-cf2VGWO8cJdIDaZwMJQUB8",
@@ -87,46 +98,56 @@ const provider = new GoogleAuthProvider();
 
 let me = null;
 let activeThreadId = null;
-let targetUser = null;
-let unsubMsgs = null;
+let selectedUser = null;
+let unsubMessages = null;
 
+// --- АВТОРИЗАЦИЯ ---
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         me = user;
-        await setDoc(doc(db, "users", user.uid), { uid: user.uid, email: user.email, displayName: user.displayName }, { merge: true });
+        await setDoc(doc(db, "users", user.uid), { uid: user.uid, email: user.email, displayName: user.displayName, lastSeen: serverTimestamp() }, { merge: true });
         document.getElementById('auth-screen').classList.add('hidden');
+        document.getElementById('myDisplayName').innerText = user.displayName;
         loadThreads();
+    } else {
+        document.getElementById('auth-screen').classList.remove('hidden');
     }
 });
 
 document.getElementById('loginBtn').onclick = () => signInWithPopup(auth, provider);
+document.getElementById('logoutBtn').onclick = () => signOut(auth).then(() => location.reload());
 
-// ЗАГРУЗКА СПИСКА ЧАТОВ
+// --- ЗАГРУЗКА СПИСКА ЧАТОВ ---
 function loadThreads() {
-    const q = query(collection(db, "threads"), where("participants", "array-contains", me.uid));
+    const q = query(collection(db, "threads"), where("participants", "array-contains", me.uid), orderBy("lastAt", "desc"));
     onSnapshot(q, (snap) => {
         const list = document.getElementById('threadsList');
         list.innerHTML = '';
         snap.forEach(d => {
             const t = d.data();
+            const otherId = t.participants.find(id => id !== me.uid);
             const div = document.createElement('div');
-            div.className = 'thread-item';
-            div.innerText = 'Чат: ' + d.id.replace(me.uid, '').replace('__', '');
-            div.onclick = () => openChat(d.id);
+            div.className = 'thread-item' + (activeThreadId === d.id ? ' active' : '');
+            div.innerHTML = `<strong>Чат</strong><br><small style="color:var(--muted)">${otherId.substring(0,10)}...</small>`;
+            div.onclick = () => openChat(d.id, otherId);
             list.appendChild(div);
         });
     });
 }
 
-// ОТКРЫТИЕ ЧАТА
-function openChat(tid) {
+// --- ОТКРЫТИЕ ЧАТА ---
+function openChat(tid, otherId) {
     activeThreadId = tid;
     document.getElementById('inputBox').classList.remove('hidden');
-    document.getElementById('chatHeader').innerText = "Чат активен";
+    document.getElementById('chatHeader').innerText = "Диалог активен";
     
-    if (unsubMsgs) unsubMsgs();
+    // Подсвечиваем выбранный чат в списке
+    document.querySelectorAll('.thread-item').forEach(el => el.classList.remove('active'));
+
+    if (unsubMessages) unsubMessages();
+    
     const q = query(collection(db, "threads", tid, "messages"), orderBy("at", "asc"));
-    unsubMsgs = onSnapshot(q, (snap) => {
+    unsubMessages = onSnapshot(q, (snap) => {
         const box = document.getElementById('messages');
         box.innerHTML = '';
         snap.forEach(m => {
@@ -140,25 +161,36 @@ function openChat(tid) {
     });
 }
 
-// ОТПРАВКА
-document.getElementById('sendBtn').onclick = async () => {
+// --- ОТПРАВКА СООБЩЕНИЯ ---
+async function sendMsg() {
     const inp = document.getElementById('msgInp');
-    if (!inp.value.trim() || !activeThreadId) return;
-    await addDoc(collection(db, "threads", activeThreadId, "messages"), {
-        from: me.uid,
-        text: inp.value,
-        at: serverTimestamp()
-    });
-    inp.value = '';
-};
+    const val = inp.value.trim();
+    if (!val || !activeThreadId) return;
 
-// ПОИСК И СОЗДАНИЕ (из прошлого шага)
-document.getElementById('addChat').onclick = () => document.getElementById('modal').classList.remove('hidden');
-document.getElementById('closeBtn').onclick = () => document.getElementById('modal').classList.add('hidden');
+    inp.value = ''; // Сразу чистим поле для скорости
+    try {
+        const msgData = { from: me.uid, text: val, at: serverTimestamp() };
+        // 1. В подколлекцию сообщений
+        await addDoc(collection(db, "threads", activeThreadId, "messages"), msgData);
+        // 2. Обновляем время в самом чате (чтобы он поднялся в списке)
+        await setDoc(doc(db, "threads", activeThreadId), { lastAt: serverTimestamp(), lastMsg: val }, { merge: true });
+    } catch (e) {
+        console.error(e);
+        alert("Ошибка при отправке!");
+    }
+}
+
+document.getElementById('sendBtn').onclick = sendMsg;
+document.getElementById('msgInp').onkeypress = (e) => { if(e.key === 'Enter') sendMsg(); };
+
+// --- ПОИСК И СОЗДАНИЕ ЧАТА ---
+document.getElementById('addChatBtn').onclick = () => document.getElementById('newDmModal').classList.remove('hidden');
+document.getElementById('closeModal').onclick = () => document.getElementById('newDmModal').classList.add('hidden');
+
 document.getElementById('searchInp').oninput = async (e) => {
     const val = e.target.value.toLowerCase().trim();
     if (val.length < 3) return;
-    const q = query(collection(db, "users"), where("email", ">=", val), where("email", "<=", val + "\uf8ff"));
+    const q = query(collection(db, "users"), where("email", ">=", val), where("email", "<=", val + "\uf8ff"), limit(5));
     const snap = await getDocs(q);
     const res = document.getElementById('results');
     res.innerHTML = '';
@@ -167,9 +199,9 @@ document.getElementById('searchInp').oninput = async (e) => {
         if (u.uid === me.uid) return;
         const div = document.createElement('div');
         div.className = 'user-res';
-        div.innerHTML = u.email;
+        div.innerHTML = `<b>${u.displayName}</b><br><small>${u.email}</small>`;
         div.onclick = () => {
-            targetUser = u;
+            selectedUser = u;
             document.querySelectorAll('.user-res').forEach(el => el.classList.remove('selected'));
             div.classList.add('selected');
         };
@@ -177,12 +209,12 @@ document.getElementById('searchInp').oninput = async (e) => {
     });
 };
 
-document.getElementById('startBtn').onclick = async () => {
-    if (!targetUser) return;
-    const tid = [me.uid, targetUser.uid].sort().join("__");
-    await setDoc(doc(db, "threads", tid), { participants: [me.uid, targetUser.uid], lastAt: serverTimestamp() }, { merge: true });
-    document.getElementById('modal').classList.add('hidden');
-    openChat(tid);
+document.getElementById('startChatBtn').onclick = async () => {
+    if (!selectedUser) return alert("Сначала выберите пользователя!");
+    const tid = [me.uid, selectedUser.uid].sort().join("__");
+    await setDoc(doc(db, "threads", tid), { participants: [me.uid, selectedUser.uid], lastAt: serverTimestamp() }, { merge: true });
+    document.getElementById('newDmModal').classList.add('hidden');
+    openChat(tid, selectedUser.uid);
 };
 </script>
 </body>
