@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Монитор группы</title>
     <style>
-        body { background-color: #f0f2f5; font-family: sans-serif; display: flex; justify-content: center; align-items: center; flex-direction: column; min-height: 100vh; margin: 0; gap: 20px; }
+        body { background-color: #f0f2f5; font-family: -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; flex-direction: column; min-height: 100vh; margin: 0; gap: 20px; }
         .card { background: white; border-radius: 12px; padding: 24px; width: 90%; max-width: 500px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        h3 { margin-top: 0; font-size: 18px; }
-        p { color: #333; font-size: 14px; margin-bottom: 20px; }
+        h3 { margin-top: 0; font-size: 18px; font-weight: 700; }
+        #myInfo { color: #333; font-size: 14px; margin-bottom: 20px; }
         .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .status-btn { border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 14px; color: white; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; transition: 0.2s; }
+        .status-btn { border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 14px; color: white; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; transition: transform 0.1s; }
         .status-btn:active { transform: scale(0.95); }
         .btn-study { background: #27ae60; }
         .btn-coffee { background: #f1c40f; color: black; }
@@ -43,22 +43,23 @@
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-        const URL = 'https://rncerhgizyjhovbdpqn1.supabase.co';
-        const KEY = 'sb_publishable_ThL+LS6uBeakf8FynDIFTg_OOINJSyh';
+        // ДАННЫЕ С ТВОИХ СКРИНШОТОВ (API Settings)
+        const URL = 'https://qugnylizprmsknwaamps.supabase.co'; //
+        const KEY = 'sb_publishable_8Z3ZijUJB3W20L289yrtA_lqV0iH7Ww7'; //
         const supabase = createClient(URL, KEY);
 
-        // ТВОЙ ID ИЗ БАЗЫ
-        const MY_ID = '66eaa7bc-173a-4450-bea8-c9cb4589f497';
+        // ТВОЙ ID ИЗ ТАБЛИЦЫ profiles
+        const MY_ID = '66eaa7bc-173a-4450-bea8-c9cb4589f497'; //
 
         window.changeStatus = async (text, color) => {
             const { error } = await supabase
                 .from('profiles')
                 .update({ status: text, color: color })
-                .eq('id', MY_ID); // Исправлено на 'id'
+                .eq('id', MY_ID); // Исправлено на id
 
             if (error) {
                 console.error(error);
-                alert("Ошибка! Проверь интернет или RLS.");
+                alert("Ошибка! Проверь настройки RLS или интернет.");
             } else {
                 fetchGroup();
             }
@@ -86,17 +87,17 @@
                 </div>
             `).join('');
 
-            // ИСПРАВЛЕНО: ищем по полю 'id', а не 'uid'
+            // ИСПРАВЛЕНО: ищем по 'id', а не 'uid'
             const me = data.find(u => u.id === MY_ID); 
             if (me) {
                 document.getElementById('myInfo').innerText = `Вы зашли как: ${me.username}`;
             } else {
-                document.getElementById('myInfo').innerText = "Пользователь не найден в базе";
+                document.getElementById('myInfo').innerText = "ID не найден в базе";
             }
         }
 
         fetchGroup();
-        setInterval(fetchGroup, 5000);
+        setInterval(fetchGroup, 5000); // Автообновление каждые 5 сек
     </script>
 </body>
 </html>
