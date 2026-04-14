@@ -93,6 +93,17 @@
 
         fetchGroup();
         setInterval(fetchGroup, 5000);
+        async function checkConnection() {
+    try {
+        const { data, error } = await supabase.from('profiles').select('count');
+        if (error) console.error("Ошибка Supabase:", error.message);
+        else console.log("Связь с Supabase установлена!");
+    } catch (e) {
+        console.error("Критическая ошибка сети:", e);
+    }
+}
+checkConnection();
     </script>
+    
 </body>
 </html>
