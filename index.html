@@ -5,28 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Монитор группы</title>
     <style>
-        body { background-color: #f0f2f5; font-family: -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; flex-direction: column; min-height: 100vh; margin: 0; gap: 20px; }
+        body { background-color: #f0f2f5; font-family: sans-serif; display: flex; justify-content: center; align-items: center; flex-direction: column; min-height: 100vh; margin: 0; gap: 20px; }
         .card { background: white; border-radius: 12px; padding: 24px; width: 90%; max-width: 400px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        h3 { margin: 0 0 10px 0; font-size: 18px; }
-        #myInfo { margin-bottom: 20px; font-size: 14px; color: #555; }
         .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .status-btn { border: none; border-radius: 8px; padding: 12px; color: white; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.1s; }
-        .status-btn:active { transform: scale(0.95); }
-        .btn-study { background: #27ae60; }
-        .btn-coffee { background: #f1c40f; color: black; }
-        .btn-game { background: #11999e; }
-        .btn-home { background: #707a8a; }
+        .status-btn { border: none; border-radius: 8px; padding: 12px; color: white; cursor: pointer; font-weight: bold; font-size: 13px; }
+        .btn-study { background: #27ae60; } .btn-coffee { background: #f1c40f; color: black; }
+        .btn-game { background: #11999e; } .btn-home { background: #707a8a; }
         .user-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #eee; }
-        .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-        .user-info b { display: block; font-size: 15px; }
-        .user-info small { color: #888; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h3>Мой профиль</h3>
-        <p id="myInfo">Вы зашли как: <b style="color: blue;">Загрузка...</b></p>
+        <h3 id="myInfo">Загрузка...</h3>
         <div class="status-grid">
             <button class="status-btn btn-study" onclick="changeStatus('Учусь', '#27ae60')">📚 Учусь</button>
             <button class="status-btn btn-coffee" onclick="changeStatus('Кофе', '#f1c40f')">☕ Кофе</button>
@@ -49,54 +41,32 @@
         const supabase = createClient(URL, KEY);
         const MY_ID = '66eaa7bc-173a-4450-bea8-c9cb4589f497';
 
-        // Функция обновления статуса
         window.changeStatus = async (text, color) => {
-            const { error } = await supabase
-                .from('profiles')
-                .update({ status: text, color: color })
-                .eq('id', MY_ID);
-
-            if (error) {
-                alert("Ошибка: " + error.message);
-            } else {
-                fetchGroup();
-            }
+            const { error } = await supabase.from('profiles').update({ status: text, color: color }).eq('id', MY_ID);
+            if (error) alert("Ошибка: " + error.message);
+            else fetchGroup();
         };
 
-        // Функция загрузки данных
         async function fetchGroup() {
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .order('username', { ascending: true });
-
+            const { data, error } = await supabase.from('profiles').select('*').order('username');
             if (error) {
-                document.getElementById('myInfo').innerHTML = "Ошибка связи";
+                document.getElementById('myInfo').innerText = "Ошибка ключа или RLS";
                 return;
             }
 
-            const list = document.getElementById('groupList');
-            list.innerHTML = data.map(user => `
+            document.getElementById('groupList').innerHTML = data.map(u => `
                 <div class="user-item">
-                    <div class="dot" style="background: ${user.color || '#ccc'}"></div>
-                    <div class="user-info">
-                        <b>${user.username}</b>
-                        <small>${user.status || 'Нет статуса'}</small>
-                    </div>
+                    <div class="dot" style="background: ${u.color || '#ccc'}"></div>
+                    <div><b>${u.username}</b><br><small>${u.status || '-'}</small></div>
                 </div>
             `).join('');
 
-            // Ищем тебя по ID
             const me = data.find(u => u.id === MY_ID);
-            if (me) {
-                document.getElementById('myInfo').innerHTML = `Вы зашли как: <b>${me.username}</b>`;
-            } else {
-                document.getElementById('myInfo').innerHTML = "<span style='color:red;'>Ваш ID не найден в базе!</span>";
-            }
+            if (me) document.getElementById('myInfo').innerText = "Вы: " + me.username;
         }
 
         fetchGroup();
-        setInterval(fetchGroup, 5000); // Обновлять каждые 5 сек
+        setInterval(fetchGroup, 5000);
     </script>
 </body>
 </html>
