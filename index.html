@@ -5,34 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Монитор группы</title>
     <style>
-        body { background-color: #f0f2f5; font-family: -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; flex-direction: column; min-height: 100vh; margin: 0; gap: 20px; }
+        body { background-color: #f0f2f5; font-family: sans-serif; display: flex; justify-content: center; align-items: center; flex-direction: column; min-height: 100vh; margin: 0; gap: 20px; }
         .card { background: white; border-radius: 12px; padding: 24px; width: 90%; max-width: 500px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        h3 { margin-top: 0; font-size: 18px; font-weight: 700; }
-        #myInfo { color: #333; font-size: 14px; margin-bottom: 20px; }
         .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .status-btn { border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 14px; color: white; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; transition: transform 0.1s; }
-        .status-btn:active { transform: scale(0.95); }
-        .btn-study { background: #27ae60; }
-        .btn-coffee { background: #f1c40f; color: black; }
-        .btn-game { background: #11999e; }
-        .btn-home { background: #707a8a; }
+        .status-btn { border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 14px; color: white; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; }
+        .btn-study { background: #27ae60; } .btn-coffee { background: #f1c40f; color: black; }
+        .btn-game { background: #11999e; } .btn-home { background: #707a8a; }
         .user-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f5f5f5; }
-        .status-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-        .user-info b { font-size: 15px; display: block; }
-        .user-info small { color: #777; font-size: 12px; }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; }
+        #error-log { color: red; font-size: 10px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
     <div class="card">
         <h3>Мой профиль</h3>
-        <p id="myInfo">Вы зашли как: загрузка...</p>
+        <p id="myInfo">Статус: <span style="color: blue;">Связываюсь с базой...</span></p>
         <div class="status-grid">
             <button class="status-btn btn-study" onclick="changeStatus('Учусь', '#27ae60')">📚 Учусь</button>
             <button class="status-btn btn-coffee" onclick="changeStatus('Кофе', '#f1c40f')">☕ Кофе</button>
             <button class="status-btn btn-game" onclick="changeStatus('В игре', '#11999e')">🎮 В игре</button>
             <button class="status-btn btn-home" onclick="changeStatus('Дома', '#707a8a')">🏠 Дома</button>
         </div>
+        <div id="error-log"></div>
     </div>
 
     <div class="card">
@@ -43,61 +38,53 @@
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-       
-        const URL = 'https://qugnylizprmsknwaamps.supabase.co'; //
-        const KEY = 'sb_publishable_8Z3ZijUJB3W20L289yrtA_lqV0iH7Ww7'; //
+        const URL = 'https://qugnylizprmsknwaamps.supabase.co';
+        const KEY = 'sb_publishable_8Z3ZijUJB3W20L289yrtA_lqV0iH7Ww7';
         const supabase = createClient(URL, KEY);
-
-   
-        const MY_ID = '66eaa7bc-173a-4450-bea8-c9cb4589f497'; //
+        const MY_ID = '66eaa7bc-173a-4450-bea8-c9cb4589f497';
 
         window.changeStatus = async (text, color) => {
-            const { error } = await supabase
-                .from('profiles')
-                .update({ status: text, color: color })
-                .eq('id', MY_ID); 
-
-            if (error) {
-                console.error(error);
-                alert("Ошибка! Проверь настройки RLS или интернет.");
-            } else {
-                fetchGroup();
-            }
+            const { error } = await supabase.from('profiles').update({ status: text, color: color }).eq('id', MY_ID);
+            if (error) document.getElementById('error-log').innerText = "Ошибка обновления: " + error.message;
+            else fetchGroup();
         };
 
         async function fetchGroup() {
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .order('username', { ascending: true });
+            try {
+                const { data, error } = await supabase.from('profiles').select('*').order('username', { ascending: true });
+                
+                if (error) {
+                    document.getElementById('myInfo').innerHTML = "<span style='color:red;'>Ошибка Supabase: " + error.message + "</span>";
+                    return;
+                }
 
-            if (error) {
-                console.error("Ошибка загрузки:", error);
-                return;
-            }
+                if (!data || data.length === 0) {
+                    document.getElementById('myInfo').innerText = "В базе НЕТ записей";
+                    return;
+                }
 
-            const list = document.getElementById('groupList');
-            list.innerHTML = data.map(user => `
-                <div class="user-item">
-                    <div class="status-dot" style="background: ${user.color || '#ccc'}"></div>
-                    <div class="user-info">
-                        <b>${user.username}</b>
-                        <small>${user.status || 'Статус не задан'}</small>
+                const list = document.getElementById('groupList');
+                list.innerHTML = data.map(user => `
+                    <div class="user-item">
+                        <div class="status-dot" style="background: ${user.color || '#ccc'}"></div>
+                        <div><b>${user.username || 'Без имени'}</b><br><small>${user.status || '-'}</small></div>
                     </div>
-                </div>
-            `).join('');
+                `).join('');
 
-            // ИСПРАВЛЕНО: ищем по 'id', а не 'uid'
-            const me = data.find(u => u.id === MY_ID); 
-            if (me) {
-                document.getElementById('myInfo').innerText = `Вы зашли как: ${me.username}`;
-            } else {
-                document.getElementById('myInfo').innerText = "ID не найден в базе";
+                const me = data.find(u => u.id === MY_ID);
+                if (me) {
+                    document.getElementById('myInfo').innerText = "Вы зашли как: " + me.username;
+                    document.getElementById('error-log').innerText = ""; 
+                } else {
+                    document.getElementById('myInfo').innerHTML = "<span style='color:orange;'>Твой ID не найден в списке. Проверь таблицу!</span>";
+                }
+            } catch (err) {
+                document.getElementById('myInfo').innerText = "Критическая ошибка сети";
             }
         }
 
         fetchGroup();
-        setInterval(fetchGroup, 5000); // Автообновление каждые 5 сек
+        setInterval(fetchGroup, 5000);
     </script>
 </body>
 </html>
