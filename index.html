@@ -3,280 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DirectMSG — Full Fix with Supabase</title>
-   <style>
-    /* ... (предыдущие стили оставляем, меняем только эти) ... */
+    <title>DirectMSG — Final Design</title>
+    <style>
+        :root { 
+            --bg: #f0f2f5; 
+            --accent: #7c6fff; 
+            --text-dark: #1a1a1a;
+            --muted: #666;
+        }
+        
+        body { background: var(--bg); color: var(--text-dark); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; height: 100vh; display: flex; overflow: hidden; }
+        
+        /* Стили Сайдбара (как на скриншоте) */
+        .sidebar { 
+            width: 380px; 
+            background: #f0f2f5; 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 20px; 
+            overflow-y: auto; 
+            border-right: 1px solid #ddd;
+        }
 
-    .sidebar { 
-        width: 360px; 
-        background: #f0f2f5; /* Светлый фон как на скрине */
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        overflow-y: auto;
-    }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
 
-    /* Стиль карточек */
-    .card {
-        background: white;
-        border-radius: 15px;
-        padding: 20px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
+        .card h3 { margin: 0 0 15px 0; font-size: 18px; font-weight: 700; }
+        .card p { margin-bottom: 20px; font-size: 14px; color: #333; }
 
-    .card h3 { margin: 0 0 10px 0; font-size: 18px; color: #1a1a1a; }
-    .card p { margin-bottom: 15px; color: #666; font-size: 14px; }
+        /* Кнопки статусов */
+        .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        
+        .status-btn {
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 8px;
+            padding: 14px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 13px;
+            transition: opacity 0.2s;
+        }
+        .status-btn:hover { opacity: 0.9; }
 
-    /* Сетка кнопок статуса */
-    .status-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-    }
+        .btn-study { background: #27ae60; }
+        .btn-coffee { background: #f1c40f; color: black; }
+        .btn-game { background: #11999e; }
+        .btn-home { background: #707a8a; }
 
-    .status-btn {
-        border: none;
-        border-radius: 8px;
-        padding: 12px;
-        color: white;
-        font-weight: bold;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        transition: transform 0.1s;
-        font-size: 13px;
-    }
+        /* Монитор группы */
+        .group-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        .dot { width: 10px; height: 10px; border-radius: 50%; }
 
-    .status-btn:active { transform: scale(0.95); }
+        /* Чат (правая часть) */
+        .main { flex: 1; display: flex; flex-direction: column; background: white; }
+        #chatHeader { padding: 20px; border-bottom: 1px solid #eee; font-weight: bold; background: white; }
+        #messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; background: #f9f9f9; }
+        .msg { max-width: 70%; padding: 10px 15px; border-radius: 18px; font-size: 14px; }
+        .msg.me { align-self: flex-end; background: var(--accent); color: white; }
+        .msg.them { align-self: flex-start; background: #e4e6eb; color: black; }
 
-    /* Цвета кнопок со скрина */
-    .btn-study { background: #2ecc71; } /* Зеленый */
-    .btn-coffee { background: #f1c40f; color: #000; } /* Желтый */
-    .btn-game { background: #16a085; } /* Бирюзовый */
-    .btn-home { background: #7f8c8d; } /* Серый */
-
-    /* Список группы */
-    .group-item {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 10px 0;
-        border-bottom: 1px solid #eee;
-    }
-
-    .dot { width: 10px; height: 10px; border-radius: 50%; }
-</style>
+        .input-area { padding: 20px; display: flex; gap: 10px; border-top: 1px solid #eee; }
+        input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 20px; outline: none; }
+        
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
 
 <div class="sidebar">
-    
     <div class="card">
         <h3>Мой профиль</h3>
-        <p id="myInfo">Вы зашли как: Загрузка...</p>
-        
+        <p id="myInfo">Вы зашли как: ...</p>
         <div class="status-grid">
-            <button class="status-btn btn-study" onclick="changeStatus('Учусь', '#2ecc71')">
-                📚 Учусь
-            </button>
-            <button class="status-btn btn-coffee" onclick="changeStatus('Кофе-брейк', '#f1c40f')">
-                ☕ Кофе
-            </button>
-            <button class="status-btn btn-game" onclick="changeStatus('В игре', '#16a085')">
-                🎮 В игре
-            </button>
-            <button class="status-btn btn-home" onclick="changeStatus('Дома', '#7f8c8d')">
-                🏠 Дома
-            </button>
+            <button class="status-btn btn-study" onclick="changeStatus('Учусь', '#27ae60')">📚 Учусь</button>
+            <button class="status-btn btn-coffee" onclick="changeStatus('Кофе-брейк', '#f1c40f')">☕ Кофе</button>
+            <button class="status-btn btn-game" onclick="changeStatus('В игре', '#11999e')">🎮 В игре</button>
+            <button class="status-btn btn-home" onclick="changeStatus('Дома', '#707a8a')">🏠 Дома</button>
         </div>
     </div>
 
     <div class="card">
         <h3>Монитор группы</h3>
-        <div id="groupList">
-            </div>
+        <div id="groupList"></div>
     </div>
 
-    <button id="logoutBtn" style="background:none; color:#999; border:none; cursor:pointer; font-size:12px;">Выйти из аккаунта</button>
-</div>
-</head>
-<body>
-
-<div id="auth-screen" class="full-screen">
-    <div style="text-align:center;">
-        <h1>DirectMSG</h1>
-        <button id="loginBtn">Войти через Google</button>
-    </div>
-</div>
-
-<div class="sidebar">
-    <div class="sidebar-header">
-        <div id="myDisplayName">Загрузка...</div>
-        <div id="myInfo" style="font-size: 11px; color: var(--muted); margin-top: 5px;"></div>
-    </div>
-    
-    <div class="tabs">
-        <div class="tab active" id="tabChats">ЧАТЫ</div>
-        <div class="tab" id="tabGroup">ГРУППА</div>
-    </div>
-
-    <div id="listContainer">
-        <div id="threadsList"></div>
-        <div id="groupList" class="hidden"></div>
-    </div>
-
-    <div class="controls">
-        <div style="font-size: 12px;">Мой статус:</div>
-        <div class="status-btn-group">
-            <button class="status-btn" onclick="changeStatus('В сети', '#44ff44')">В сети</button>
-            <button class="status-btn" onclick="changeStatus('Занят', '#ff4444')">Занят</button>
-            <button class="status-btn" onclick="changeStatus('Отошел', '#ffaa00')">Отошел</button>
-        </div>
-        <button id="logoutBtn" style="background:none; color:var(--muted); font-size:12px; margin-top:10px; width:100%; text-align:left;">Выйти</button>
-    </div>
+    <button onclick="location.reload()" style="background:none; border:none; color: #999; cursor:pointer;">Обновить страницу</button>
 </div>
 
 <div class="main">
-    <div id="chatHeader">
-        <span>Выберите чат</span>
-        <button id="addChatBtn" style="padding: 5px 12px;">+ Новый чат</button>
-    </div>
+    <div id="chatHeader">Выберите чат или участника</div>
     <div id="messages"></div>
-    <div id="inputBox" class="input-area hidden">
+    <div class="input-area">
         <input type="text" id="msgInp" placeholder="Напишите сообщение...">
-        <button id="sendBtn">ОТПРАВИТЬ</button>
+        <button id="sendBtn" style="background:var(--accent); color:white; border:none; border-radius:20px; padding: 10px 20px; cursor:pointer;">Отправить</button>
     </div>
 </div>
 
 <script type="module">
-// ИМПОРТЫ (Firebase + Supabase)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, doc, setDoc, collection, query, where, getDocs, onSnapshot, addDoc, serverTimestamp, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, collection, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-// КОНФИГУРАЦИЯ
-const firebaseConfig = {
-    apiKey: "AIzaSyB_PU4Y1et2-cf2VGWO8cJdIDaZwMJQUB8",
-    authDomain: "po241-gulmamedov.firebaseapp.com",
-    projectId: "po241-gulmamedov",
-    storageBucket: "po241-gulmamedov.appspot.com",
-    messagingSenderId: "1045987096320",
-    appId: "1:1045987096320:web:bcc59339a37de3fb60e5e5"
-};
+// ТВОЙ ID
+const MY_ID = '66eaa7bc-173a-4450-bea8-c9cb4589f497';
 
-// Данные Supabase из вашего скриншота
-const SUPABASE_URL = 'https://rncerhgizyjhovbdpqn1.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_ThL+LS6uBeakf8FynDIFTg_OOINJSyh';
-const MY_ID = '4bc5694e-89f8-47d9-9b60-2d3bd2439122'; // ID из скриншота
+const supabase = createClient('https://rncerhgizyjhovbdpqn1.supabase.co', 'sb_publishable_ThL+LS6uBeakf8FynDIFTg_OOINJSyh');
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-let me = null;
-let activeThreadId = null;
-
-// --- SUPABASE: СТАТУСЫ И ГРУППА ---
+// Функция смены статуса
 window.changeStatus = async (text, color) => {
-    const { error } = await supabase.from('profiles').update({ status: text, color: color }).eq('id', MY_ID);
-    if (error) alert("Ошибка Supabase: " + error.message);
-    else fetchGroup();
+    const { error } = await supabase
+        .from('profiles')
+        .update({ status: text, color: color })
+        .eq('id', MY_ID);
+    
+    if (error) {
+        console.error(error);
+        alert("Ошибка обновления: " + error.message);
+    } else {
+        fetchGroup(); // Сразу обновляем список
+    }
 };
 
+// Функция загрузки группы
 async function fetchGroup() {
     const { data, error } = await supabase.from('profiles').select('*').order('username', { ascending: true });
-    if (error) return console.error(error);
-    
+    if (error) return;
+
     const list = document.getElementById('groupList');
     list.innerHTML = data.map(user => `
-        <div class="user-item">
-            <div class="status-dot" style="background: ${user.color || '#ccc'}"></div>
-            <div style="flex-grow: 1;">
-                <strong>${user.username}</strong><br>
-                <small style="color: #666;">${user.status || 'Нет статуса'}</small>
+        <div class="group-item">
+            <div class="dot" style="background: ${user.color || '#ccc'}"></div>
+            <div>
+                <div style="font-weight: bold; font-size: 15px;">${user.username}</div>
+                <div style="font-size: 12px; color: #777;">${user.status || '—'}</div>
             </div>
         </div>
     `).join('');
 
-    const currentMe = data.find(u => u.id === MY_ID);
-    if (currentMe) document.getElementById('myInfo').innerText = `Статус: ${currentMe.status || '—'}`;
+    const me = data.find(u => u.id === MY_ID);
+    if (me) document.getElementById('myInfo').innerText = `Вы зашли как: ${me.username}`;
 }
 
-// --- FIREBASE: АВТОРИЗАЦИЯ И ЧАТ ---
-onAuthStateChanged(auth, async (user) => {
-    if (user) {
-        me = user;
-        document.getElementById('auth-screen').classList.add('hidden');
-        document.getElementById('myDisplayName').innerText = user.displayName;
-        loadThreads();
-        fetchGroup();
-        setInterval(fetchGroup, 10000); // Обновляем группу каждые 10 сек
-    } else {
-        document.getElementById('auth-screen').classList.remove('hidden');
-    }
-});
+// Запуск
+fetchGroup();
+setInterval(fetchGroup, 5000); // Обновляем каждые 5 сек
 
-// Переключение табов
-document.getElementById('tabChats').onclick = () => {
-    document.getElementById('threadsList').classList.remove('hidden');
-    document.getElementById('groupList').classList.add('hidden');
-    document.getElementById('tabChats').classList.add('active');
-    document.getElementById('tabGroup').classList.remove('active');
-};
-document.getElementById('tabGroup').onclick = () => {
-    document.getElementById('threadsList').classList.add('hidden');
-    document.getElementById('groupList').classList.remove('hidden');
-    document.getElementById('tabGroup').classList.add('active');
-    document.getElementById('tabChats').classList.remove('active');
-};
-
-// Функция загрузки чатов (из вашего кода)
-function loadThreads() {
-    const q = query(collection(db, "threads"), where("participants", "array-contains", me.uid), orderBy("lastAt", "desc"));
-    onSnapshot(q, (snap) => {
-        const list = document.getElementById('threadsList');
-        list.innerHTML = '';
-        snap.forEach(d => {
-            const t = d.data();
-            const div = document.createElement('div');
-            div.className = 'thread-item' + (activeThreadId === d.id ? ' active' : '');
-            div.innerHTML = `<strong>Чат: ${d.id.substring(0,8)}</strong><br><small>${t.lastMsg || ''}</small>`;
-            div.onclick = () => openChat(d.id);
-            list.appendChild(div);
-        });
-    });
-}
-
-async function openChat(tid) {
-    activeThreadId = tid;
-    document.getElementById('inputBox').classList.remove('hidden');
-    const q = query(collection(db, "threads", tid, "messages"), orderBy("at", "asc"));
-    onSnapshot(q, (snap) => {
-        const box = document.getElementById('messages');
-        box.innerHTML = '';
-        snap.forEach(m => {
-            const data = m.data();
-            const div = document.createElement('div');
-            div.className = 'msg ' + (data.from === me.uid ? 'me' : 'them');
-            div.innerText = data.text;
-            box.appendChild(div);
-        });
-        box.scrollTop = box.scrollHeight;
-    });
-}
-
-document.getElementById('loginBtn').onclick = () => signInWithPopup(auth, new GoogleAuthProvider());
-document.getElementById('logoutBtn').onclick = () => signOut(auth).then(() => location.reload());
-document.getElementById('sendBtn').onclick = async () => {
-    const inp = document.getElementById('msgInp');
-    if (!inp.value.trim() || !activeThreadId) return;
-    await addDoc(collection(db, "threads", activeThreadId, "messages"), { from: me.uid, text: inp.value, at: serverTimestamp() });
-    await setDoc(doc(db, "threads", activeThreadId), { lastAt: serverTimestamp(), lastMsg: inp.value }, { merge: true });
-    inp.value = '';
-};
 </script>
 </body>
 </html>
