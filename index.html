@@ -5,77 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Монитор группы</title>
     <style>
-        body {
-            background-color: #f0f2f5;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            min-height: 100vh;
-            margin: 0;
-            gap: 20px;
-        }
-
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 24px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        h3 { margin-top: 0; font-size: 18px; font-weight: 700; }
+        body { background-color: #f0f2f5; font-family: sans-serif; display: flex; justify-content: center; align-items: center; flex-direction: column; min-height: 100vh; margin: 0; gap: 20px; }
+        .card { background: white; border-radius: 12px; padding: 24px; width: 90%; max-width: 500px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        h3 { margin-top: 0; font-size: 18px; }
         p { color: #333; font-size: 14px; margin-bottom: 20px; }
-
-        /* Сетка кнопок */
-        .status-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .status-btn {
-            border: 1px solid rgba(0,0,0,0.1);
-            border-radius: 8px;
-            padding: 14px;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-size: 13px;
-            transition: opacity 0.2s;
-        }
-
-        .status-btn:active { transform: scale(0.98); }
-
+        .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .status-btn { border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 14px; color: white; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; }
         .btn-study { background: #27ae60; }
         .btn-coffee { background: #f1c40f; color: black; }
         .btn-game { background: #11999e; }
         .btn-home { background: #707a8a; }
-
-        /* Список группы */
-        #groupList { margin-top: 10px; }
-        .user-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 0;
-            border-bottom: 1px solid #f5f5f5;
-        }
-        .user-item:last-child { border-bottom: none; }
-        
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-
+        .user-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f5f5f5; }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
         .user-info b { font-size: 15px; display: block; }
         .user-info small { color: #777; font-size: 12px; }
     </style>
@@ -85,7 +26,6 @@
     <div class="card">
         <h3>Мой профиль</h3>
         <p id="myInfo">Вы зашли как: загрузка...</p>
-        
         <div class="status-grid">
             <button class="status-btn btn-study" onclick="changeStatus('Учусь', '#27ae60')">📚 Учусь</button>
             <button class="status-btn btn-coffee" onclick="changeStatus('Кофе', '#f1c40f')">☕ Кофе</button>
@@ -96,8 +36,7 @@
 
     <div class="card">
         <h3>Монитор группы</h3>
-        <div id="groupList">
-            </div>
+        <div id="groupList"></div>
     </div>
 
     <script type="module">
@@ -107,25 +46,23 @@
         const KEY = 'sb_publishable_ThL+LS6uBeakf8FynDIFTg_OOINJSyh';
         const supabase = createClient(URL, KEY);
 
-        // ТВОЙ АКТУАЛЬНЫЙ ID
+        // ТВОЙ ID
         const MY_ID = '66eaa7bc-173a-4450-bea8-c9cb4589f497';
 
-        // Функция обновления статуса
         window.changeStatus = async (text, color) => {
             const { error } = await supabase
                 .from('profiles')
                 .update({ status: text, color: color })
-                .eq('id', MY_ID);
+                .eq('id', MY_ID); // Здесь тоже 'id'
 
             if (error) {
                 console.error(error);
-                alert("Ошибка обновления статуса");
+                alert("Ошибка RLS или базы данных");
             } else {
                 fetchGroup();
             }
         };
 
-        // Функция получения списка группы
         async function fetchGroup() {
             const { data, error } = await supabase
                 .from('profiles')
@@ -145,17 +82,16 @@
                 </div>
             `).join('');
 
-            // Обновляем надпись "Вы зашли как"
+            // ИСПРАВЛЕНО: ищем по полю 'id', как в твоей базе
             const me = data.find(u => u.id === MY_ID);
             if (me) {
                 document.getElementById('myInfo').innerText = `Вы зашли как: ${me.username}`;
+            } else {
+                document.getElementById('myInfo').innerText = "ID не найден в базе";
             }
         }
 
-        // Запуск при загрузке
         fetchGroup();
-
-        // Авто-обновление каждые 5 секунд
         setInterval(fetchGroup, 5000);
     </script>
 </body>
