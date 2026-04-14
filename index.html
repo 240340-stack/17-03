@@ -43,19 +43,19 @@
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-        // ДАННЫЕ С ТВОИХ СКРИНШОТОВ (API Settings)
+       
         const URL = 'https://qugnylizprmsknwaamps.supabase.co'; //
         const KEY = 'sb_publishable_8Z3ZijUJB3W20L289yrtA_lqV0iH7Ww7'; //
         const supabase = createClient(URL, KEY);
 
-        // ТВОЙ ID ИЗ ТАБЛИЦЫ profiles
+   
         const MY_ID = '66eaa7bc-173a-4450-bea8-c9cb4589f497'; //
 
         window.changeStatus = async (text, color) => {
             const { error } = await supabase
                 .from('profiles')
                 .update({ status: text, color: color })
-                .eq('id', MY_ID); // Исправлено на id
+                .eq('id', MY_ID); 
 
             if (error) {
                 console.error(error);
