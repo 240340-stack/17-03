@@ -319,66 +319,278 @@
 <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-    const SB_URL  = 'https://qugnylizprmsknwaamps.supabase.co';
-    const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1Z255bGl6cHJtc2tud2FhbXBzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxNTM2MjIsImV4cCI6MjA5MTcyOTYyMn0.kXDlml97pCnZYzIoa_xSujOhQyaGnCQciZt8NQ83RfQ';
-    const ONLINE_MS = 90_000;
+const SB_URL  = 'https://qugnylizprmsknwaamps.supabase.co';
+const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1Z255bGl6cHJtc2tud2FhbXBzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxNTM2MjIsImV4cCI6MjA5MTcyOTYyMn0.kXDlml97pCnZYzIoa_xSujOhQyaGnCQciZt8NQ83RfQ';
 
-    const sb = createClient(SB_URL, SB_KEY);
+// Уменьшим интервал, чтобы статус быстрее становился серым (45 секунд)
+const ONLINE_MS = 45_000; 
 
-    // ── Состояние ────────────────────────────────────────────────────────
-    let MY_ID        = null;
-    let myProfile    = null;
-    let groupData    = [];
-    let sessionStart = null;
-    let onBreak      = false;
-    let breakStart   = null;
-    let totalBreakMs = 0;
-    let sessionEnded = false;
+const sb = createClient(SB_URL, SB_KEY);
 
-    // ── Google вход ──────────────────────────────────────────────────────
-    window.loginWithGoogle = async () => {
-        const { error } = await sb.auth.signInWithOAuth({
-            provider: 'google',
-            options: { redirectTo: window.location.href }
-        });
-        if (error) {
-            document.getElementById('loginError').style.display = 'block';
-        }
-    };
+let MY_ID        = null;
+let myProfile    = null;
+let groupData    = [];
+let sessionStart = null;
+let onBreak      = false;
+let breakStart   = null;
+let totalBreakMs = 0;
+let sessionEnded = false;
 
-    window.logout = async () => {
-        if (!confirm('Выйти из аккаунта?')) return;
-        // Сбросить статус
-        if (MY_ID) {
-            await sb.from('profiles').update({
-                status: 'Дома', color: '#707a8a',
-                last_seen: new Date().toISOString(),
-                session_started_at: null,
-                study_started_at: null,
-                is_on_break: false,
-            }).eq('id', MY_ID);
-        }
-        await sb.auth.signOut();
-        location.reload();
-    };
+// ── Вход и Выход ──
+window.loginWithGoogle = async () => {
+    const { error } = await sb.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.href }
+    });
+    if (error) document.getElementById('loginError').style.display = 'block';
+};
 
-    // ── Проверка / создание профиля ──────────────────────────────────────
-    async function ensureProfile(user) {
-        const { data } = await sb.from('profiles').select('*').eq('id', user.id).single();
-        if (!data) {
-            // Новый пользователь — создаём профиль
-            const name = user.user_metadata?.full_name
-                      || user.user_metadata?.name
-                      || user.email?.split('@')[0]
-                      || 'Пользователь';
-            await sb.from('profiles').insert({
-                id:       user.id,
-                username: name,
-                status:   'Учусь',
-                color:    '#4c6ef5',
-            });
-        }
+window.logout = async () => {
+    if (!confirm('Выйти из аккаунта?')) return;
+    if (MY_ID) {
+        await sb.from('profiles').update({
+            status: 'Дома', 
+            color: '#707a8a',
+            last_seen: new Date(0).toISOString(), // Сразу делаем "оффлайн"
+            session_started_at: null,
+            study_started_at: null,
+            is_on_break: false,
+        }).eq('id', MY_ID);
     }
+    await sb.auth.signOut();
+    location.reload();
+};
+
+async function ensureProfile(user) {
+    const { data } = await sb.from('profiles').select('*').eq('id', user.id).single();
+    if (!data) {
+        const name = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'Ученик';
+        await sb.from('profiles').insert({
+            id: user.id,
+            username: name,
+            status: 'Учусь',
+            color: '#4c6ef5',
+        });
+    }
+}
+
+// ── Функции времени ──
+function fmtSession(ms) {
+    const total = Math.floor(ms / 1000);
+    const h = Math.floor(total / 3600);
+    const m = Math.floor((total % 3600) / 60);
+    const s = total % 60;
+    return h > 0 ? `${h} ч. ${String(m).padStart(2,'0')} мин.` : `${m} мин. ${String(s).padStart(2,'0')} сек.`;
+}
+
+function fmtStudy(since) {
+    if (!since) return '';
+    const secs = Math.max(0, Math.floor((Date.now() - new Date(since).getTime()) / 1000));
+    const h = Math.floor(secs / 3600);
+    const m = Math.floor((secs % 3600) / 60);
+    const s = secs % 60;
+    return `${h}ч ${m}м ${s}с`;
+}
+
+function isOnline(lastSeen) {
+    if (!lastSeen) return false;
+    return (Date.now() - new Date(lastSeen).getTime()) < ONLINE_MS;
+}
+
+function statusIcon(s) {
+    return {'Учусь':'📚','Кофе':'☕','В игре':'🎮','Дома':'🏠','Перерыв':'⏸','Завершил':'✅'}[s] || '●';
+}
+
+function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Рендер и Тик ──
+function tick() {
+    if (sessionStart && !sessionEnded) {
+        let active = Date.now() - new Date(sessionStart).getTime() - totalBreakMs;
+        if (onBreak && breakStart) active -= (Date.now() - breakStart);
+        if (active < 0) active = 0;
+        document.getElementById('sessionTimerVal').textContent = fmtSession(active);
+        document.getElementById('sessionTimer').className = 'session-timer' + (onBreak ? ' paused' : '');
+    }
+    document.querySelectorAll('[data-study]').forEach(el => {
+        el.textContent = fmtStudy(el.dataset.study);
+    });
+}
+
+function renderGroup() {
+    const el = document.getElementById('groupList');
+    if (!groupData.length) {
+        el.innerHTML = '<div style="color:#c4c9d4;text-align:center;padding:14px">Загрузка пользователей...</div>';
+        return;
+    }
+    el.innerHTML = groupData.map(u => {
+        const online = isOnline(u.last_seen);
+        const color = u.color || '#9ca3af';
+        const studying = u.study_started_at && u.status === 'Учусь';
+        
+        return `
+        <div class="user-item">
+            <div class="dot-wrap">
+                <div class="status-dot ${online ? 'online' : ''}"></div>
+            </div>
+            <div class="user-info">
+                <div class="user-name-text">${escHtml(u.username || 'Аноним')}</div>
+            </div>
+            <div class="user-right">
+                <div class="user-status-text">
+                    ${statusIcon(u.status)}
+                    <span style="color:${color}">${escHtml(u.status || '—')}</span>
+                </div>
+                <div class="user-time" ${studying ? `data-study="${u.study_started_at}"` : ''}>
+                    ${studying ? fmtStudy(u.study_started_at) : ''}
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ── Сессии ──
+window.endSession = async () => {
+    if (!confirm('Завершить сессию?')) return;
+    sessionEnded = true;
+    document.getElementById('sessionTimer').className = 'session-timer ended';
+    document.getElementById('btnEnd').disabled = true;
+    document.getElementById('btnBreak').disabled = true;
+    await sb.from('profiles').update({
+        status: 'Завершил', color: '#22c55e',
+        last_seen: new Date().toISOString(),
+        study_started_at: null, is_on_break: false, session_started_at: null,
+    }).eq('id', MY_ID);
+    fetchGroup();
+};
+
+window.toggleBreak = async () => {
+    if (sessionEnded) return;
+    if (!onBreak) {
+        onBreak = true; breakStart = Date.now();
+        await sb.from('profiles').update({
+            status: 'Перерыв', color: '#f59e0b',
+            last_seen: new Date().toISOString(), is_on_break: true,
+        }).eq('id', MY_ID);
+    } else {
+        if (breakStart) totalBreakMs += Date.now() - breakStart;
+        breakStart = null; onBreak = false;
+        await sb.from('profiles').update({
+            status: 'Учусь', color: '#4c6ef5',
+            last_seen: new Date().toISOString(), is_on_break: false,
+        }).eq('id', MY_ID);
+    }
+    fetchGroup();
+};
+
+// ── Чат (Realtime) ──
+async function loadMessages() {
+    const { data } = await sb.from('messages')
+        .select('*').order('created_at', { ascending: true }).limit(50);
+    
+    const box = document.getElementById('chatMessages');
+    if (!data || data.length === 0) {
+        box.innerHTML = '<div class="chat-empty">Сообщений пока нет</div>';
+        return;
+    }
+    
+    box.innerHTML = data.map(m => `
+        <div class="chat-msg ${m.user_id === MY_ID ? 'mine' : ''}">
+            <b>${escHtml(m.username)}:</b> ${escHtml(m.text)}
+        </div>`).join('');
+    box.scrollTop = box.scrollHeight;
+}
+
+window.sendMessage = async () => {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text || !MY_ID) return;
+    
+    input.value = '';
+    const { error } = await sb.from('messages').insert({
+        user_id: MY_ID,
+        username: myProfile?.username || 'Аноним',
+        text: text,
+    });
+    if (error) console.error("Ошибка отправки:", error);
+};
+
+function subscribeRealtime() {
+    // Подписка на сообщения
+    sb.channel('chat-room')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => {
+            loadMessages();
+        })
+        .subscribe();
+
+    // Подписка на изменение профилей (чтобы сразу видеть, кто зашел/вышел)
+    sb.channel('global-status')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
+            fetchGroup();
+        })
+        .subscribe();
+}
+
+// ── Системные функции ──
+async function heartbeat() {
+    if (!MY_ID || sessionEnded) return;
+    await sb.from('profiles').update({ last_seen: new Date().toISOString() }).eq('id', MY_ID);
+}
+
+async function fetchGroup() {
+    const { data } = await sb.from('profiles').select('*').order('username');
+    if (data) {
+        groupData = data;
+        myProfile = data.find(u => u.id === MY_ID);
+        if (myProfile) {
+            document.getElementById('myName').textContent = myProfile.username;
+            onBreak = !!myProfile.is_on_break;
+            const btn = document.getElementById('btnBreak');
+            btn.textContent = onBreak ? '▶ Продолжить' : '☕ Перерыв';
+            onBreak ? btn.classList.add('resume') : btn.classList.remove('resume');
+        }
+        renderGroup();
+    }
+}
+
+async function init() {
+    const { data: { session } } = await sb.auth.getSession();
+
+    if (!session) {
+        document.getElementById('loginScreen').style.display = 'flex';
+        return;
+    }
+
+    MY_ID = session.user.id;
+    await ensureProfile(session.user);
+
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('mainApp').style.display = 'block';
+
+    await fetchGroup();
+    await loadMessages();
+    subscribeRealtime();
+
+    if (myProfile && !myProfile.session_started_at && !sessionEnded) {
+        const now = new Date().toISOString();
+        sessionStart = now;
+        await sb.from('profiles').update({
+            status: 'Учусь', color: '#4c6ef5',
+            last_seen: now, session_started_at: now,
+            study_started_at: now, is_on_break: false,
+        }).eq('id', MY_ID);
+        fetchGroup();
+    } else if (myProfile?.session_started_at) {
+        sessionStart = myProfile.session_started_at;
+    }
+
+    setInterval(tick, 1000);
+    setInterval(heartbeat, 20000); // Обновляем статус каждые 20 сек
+}
+
+init();
 
     // ── Форматирование ───────────────────────────────────────────────────
     function fmtSession(ms) {
