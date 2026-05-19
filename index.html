@@ -33,230 +33,102 @@
 
         /* ── LOGIN SCREEN ── */
         #loginScreen {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            width: 100%;
-            position: fixed;
-            inset: 0;
-            background: #f0f2f5;
-            z-index: 100;
+            display: flex; align-items: center; justify-content: center;
+            min-height: 100vh; width: 100%; position: fixed; inset: 0;
+            background: #f0f2f5; z-index: 100;
         }
         .login-card {
-            background: white;
-            border-radius: 20px;
-            padding: 40px 32px;
-            width: 90%;
-            max-width: 360px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-            text-align: center;
+            background: white; border-radius: 20px; padding: 40px 32px;
+            width: 90%; max-width: 360px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); text-align: center;
         }
         .login-logo { font-size: 48px; margin-bottom: 12px; }
-        .login-title {
-            font-size: 22px;
-            font-weight: 800;
-            color: #1a1a2e;
-            margin-bottom: 6px;
-        }
-        .login-sub {
-            font-size: 14px;
-            color: #9ca3af;
-            margin-bottom: 32px;
-        }
+        .login-title { font-size: 22px; font-weight: 800; color: #1a1a2e; margin-bottom: 6px; }
+        .login-sub { font-size: 14px; color: #9ca3af; margin-bottom: 32px; }
         .btn-google {
-            width: 100%;
-            padding: 13px 16px;
-            border: 1.5px solid #e5e7eb;
-            border-radius: 12px;
-            background: white;
-            cursor: pointer;
-            font-size: 15px;
-            font-weight: 600;
-            color: #374151;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-family: inherit;
-            transition: background 0.15s, box-shadow 0.15s;
+            width: 100%; padding: 13px 16px; border: 1.5px solid #e5e7eb; border-radius: 12px;
+            background: white; cursor: pointer; font-size: 15px; font-weight: 600; color: #374151;
+            display: flex; align-items: center; justify-content: center; gap: 10px; font-family: inherit;
         }
-        .btn-google:hover {
-            background: #f9fafb;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        .btn-google:active { background: #f3f4f6; }
-        .google-icon {
-            width: 20px; height: 20px;
-        }
-        .login-error {
-            margin-top: 14px;
-            font-size: 13px;
-            color: #ef4444;
-            display: none;
-        }
+        .btn-google:hover { background: #f9fafb; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .google-icon { width: 20px; height: 20px; }
+        .login-error { margin-top: 14px; font-size: 13px; color: #ef4444; display: none; }
 
         /* ── MAIN APP ── */
         #mainApp { display: none; width: 100%; }
 
         /* ── SESSION CARD ── */
-        .session-name {
-            text-align: center;
-            font-size: 17px;
-            font-weight: 700;
-            color: #1a1a2e;
-            margin-bottom: 10px;
+        .session-name { text-align: center; font-size: 17px; font-weight: 700; color: #1a1a2e; margin-bottom: 5px; }
+        
+        /* ДОСТИЖЕНИЯ В ПРОФИЛЕ */
+        .achievements-list {
+            display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; min-height: 24px;
         }
+        .badge {
+            display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px;
+            background: #f3f4f6; border-radius: 8px; font-size: 12px; font-weight: 600; color: #374151;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+        }
+
         .session-timer {
-            text-align: center;
-            font-size: 32px;
-            font-weight: 800;
-            color: #3b82f6;
-            margin-bottom: 16px;
-            font-variant-numeric: tabular-nums;
-            letter-spacing: -1px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: color 0.3s;
+            text-align: center; font-size: 32px; font-weight: 800; color: #3b82f6; margin-bottom: 16px;
+            font-variant-numeric: tabular-nums; letter-spacing: -1px; display: flex; align-items: center; justify-content: center; gap: 8px;
         }
         .session-timer.paused { color: #f59e0b; }
         .session-timer.ended  { color: #9ca3af; }
 
         .btn-end {
-            width: 100%;
-            padding: 13px;
-            border: none;
-            border-radius: 10px;
-            background: #ef4444;
-            color: white;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            font-family: inherit;
-            transition: opacity 0.15s;
+            width: 100%; padding: 13px; border: none; border-radius: 10px; background: #ef4444; color: white;
+            font-size: 15px; font-weight: 700; cursor: pointer; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 6px;
         }
         .btn-end:disabled { background: #d1d5db; cursor: default; }
-        .btn-end:not(:disabled):active { opacity: 0.8; }
-
         .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
         .btn-break, .btn-exit {
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            font-family: inherit;
-            transition: opacity 0.15s, background 0.2s;
-            color: white;
+            padding: 12px; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; gap: 6px;
         }
         .btn-break { background: #f59e0b; }
         .btn-break.resume { background: #3b82f6; }
-        .btn-break:disabled { background: #d1d5db; cursor: default; }
-        .btn-break:not(:disabled):active { opacity: 0.8; }
         .btn-exit  { background: #9ca3af; }
-        .btn-exit:active { opacity: 0.8; }
+
+        /* ── CARDS TITLES ── */
+        .card-title { font-size: 15px; font-weight: 700; color: #1a1a2e; display: flex; align-items: center; gap: 7px; margin-bottom: 14px; }
+
+        /* ── RATING (TOP STUDENTS) ── */
+        .rating-item {
+            display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f3f4f6;
+        }
+        .rating-item:last-child { border-bottom: none; }
+        .medal { font-size: 18px; width: 24px; text-align: center; }
+        .rating-name { flex: 1; font-size: 14px; font-weight: 600; color: #1a1a2e; }
+        .rating-score { font-size: 13px; font-weight: 700; color: #22c55e; font-variant-numeric: tabular-nums; }
 
         /* ── GROUP MONITOR ── */
-        .card-title {
-            font-size: 15px;
-            font-weight: 700;
-            color: #1a1a2e;
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            margin-bottom: 14px;
-        }
-
-        .user-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 9px 0;
-            border-bottom: 1px solid #f3f4f6;
-        }
+        .user-item { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid #f3f4f6; }
         .user-item:last-child { border-bottom: none; }
-
         .dot-wrap { position: relative; flex-shrink: 0; width: 10px; height: 10px; }
-        .status-dot {
-            width: 10px; height: 10px;
-            border-radius: 50%;
-            background: #d1d5db;
-        }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #d1d5db; }
         .status-dot.online { background: #22c55e; }
-        .status-dot.online::after {
-            content: '';
-            position: absolute;
-            inset: -3px;
-            border-radius: 50%;
-            background: rgba(34,197,94,0.3);
-            animation: ripple 1.8s ease-out infinite;
-        }
-        @keyframes ripple {
-            0%   { transform: scale(0.7); opacity: 1; }
-            100% { transform: scale(2.2); opacity: 0; }
-        }
-
         .user-info { flex: 1; min-width: 0; }
         .user-name-text { font-size: 14px; font-weight: 600; color: #1a1a2e; }
-
         .user-right { text-align: right; flex-shrink: 0; }
-        .user-status-text {
-            font-size: 12px; color: #6b7280; font-weight: 500;
-            display: flex; align-items: center;
-            justify-content: flex-end; gap: 4px;
-        }
-        .user-time {
-            font-size: 12px; color: #3b82f6;
-            font-weight: 700; font-variant-numeric: tabular-nums; margin-top: 2px;
-        }
+        .user-status-text { font-size: 12px; color: #6b7280; font-weight: 500; display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
+        .user-time { font-size: 12px; color: #3b82f6; font-weight: 700; font-variant-numeric: tabular-nums; margin-top: 2px; }
 
         /* ── CHAT ── */
         .chat-messages {
-            height: 180px; overflow-y: auto;
-            border: 1px solid #f3f4f6; border-radius: 10px;
-            padding: 10px 12px; margin-bottom: 10px;
-            background: #fafafa;
-            display: flex; flex-direction: column; gap: 5px;
+            height: 180px; overflow-y: auto; border: 1px solid #f3f4f6; border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; background: #fafafa; display: flex; flex-direction: column; gap: 5px;
         }
         .chat-msg { font-size: 13px; color: #374151; line-height: 1.45; }
         .chat-msg b { color: #1a1a2e; }
         .chat-msg.mine b { color: #3b82f6; }
         .chat-empty { color: #c4c9d4; font-size: 13px; text-align: center; margin: auto; }
-
         .chat-input-row { display: flex; gap: 8px; }
-        .chat-input {
-            flex: 1; border: 1px solid #e5e7eb; border-radius: 10px;
-            padding: 10px 14px; font-size: 14px; outline: none;
-            font-family: inherit; background: #f9fafb; color: #1a1a2e;
-            transition: border 0.2s, background 0.2s;
-        }
+        .chat-input { flex: 1; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 14px; font-size: 14px; outline: none; background: #f9fafb; transition: border 0.2s; }
         .chat-input:focus { border-color: #3b82f6; background: #fff; }
-        .chat-input::placeholder { color: #c4c9d4; }
-        .chat-send {
-            width: 42px; height: 42px; border: none; border-radius: 10px;
-            background: #22c55e; color: white; font-size: 16px; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0; transition: opacity 0.15s;
-        }
-        .chat-send:active { opacity: 0.75; }
+        .chat-send { width: 42px; height: 42px; border: none; border-radius: 10px; background: #22c55e; color: white; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
-<!-- ── ЭКРАН ВХОДА ── -->
 <div id="loginScreen">
     <div class="login-card">
         <div class="login-logo">👥</div>
@@ -275,13 +147,13 @@
     </div>
 </div>
 
-<!-- ── ГЛАВНОЕ ПРИЛОЖЕНИЕ ── -->
 <div id="mainApp">
     <div class="page">
 
-        <!-- ① СЕССИЯ -->
         <div class="card">
             <div class="session-name" id="myName">...</div>
+            <div id="myAchievements" class="achievements-list"></div>
+            
             <div class="session-timer" id="sessionTimer">
                 <span>⏱</span><span id="sessionTimerVal">0 сек.</span>
             </div>
@@ -294,13 +166,16 @@
             </div>
         </div>
 
-        <!-- ② МОНИТОР ГРУППЫ -->
+        <div class="card">
+            <div class="card-title">🏆 Топ студентов (по времени)</div>
+            <div id="topStudentsList">Загрузка...</div>
+        </div>
+
         <div class="card">
             <div class="card-title">👥 Монитор группы</div>
             <div id="groupList">Загрузка...</div>
         </div>
 
-        <!-- ③ ЧАТ -->
         <div class="card">
             <div class="card-title">💬 Общий чат</div>
             <div class="chat-messages" id="chatMessages">
@@ -325,7 +200,7 @@
 
     const sb = createClient(SB_URL, SB_KEY);
 
-    // ── Состояние ────────────────────────────────────────────────────────
+    // ── Состояние ──
     let MY_ID        = null;
     let myProfile    = null;
     let groupData    = [];
@@ -335,69 +210,63 @@
     let totalBreakMs = 0;
     let sessionEnded = false;
 
-    // ── Google вход ──────────────────────────────────────────────────────
+    // ── Google вход ──
     window.loginWithGoogle = async () => {
         const { error } = await sb.auth.signInWithOAuth({
             provider: 'google',
             options: { redirectTo: window.location.href }
         });
-        if (error) {
-            document.getElementById('loginError').style.display = 'block';
-        }
+        if (error) document.getElementById('loginError').style.display = 'block';
     };
 
     window.logout = async () => {
         if (!confirm('Выйти из аккаунта?')) return;
-        // Сбросить статус
         if (MY_ID) {
             await sb.from('profiles').update({
                 status: 'Дома', color: '#707a8a',
                 last_seen: new Date().toISOString(),
-                session_started_at: null,
-                study_started_at: null,
-                is_on_break: false,
+                session_started_at: null, study_started_at: null, is_on_break: false,
             }).eq('id', MY_ID);
         }
         await sb.auth.signOut();
         location.reload();
     };
 
-    // ── Проверка / создание профиля ──────────────────────────────────────
+    // ── Профиль ──
     async function ensureProfile(user) {
         const { data } = await sb.from('profiles').select('*').eq('id', user.id).single();
         if (!data) {
-            // Новый пользователь — создаём профиль
-            const name = user.user_metadata?.full_name
-                      || user.user_metadata?.name
-                      || user.email?.split('@')[0]
-                      || 'Пользователь';
+            const name = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'Пользователь';
             await sb.from('profiles').insert({
-                id:       user.id,
-                username: name,
-                status:   'Учусь',
-                color:    '#4c6ef5',
+                id: user.id, username: name, status: 'Учусь', color: '#4c6ef5',
+                study_time_total: 0, message_count: 0, achievements: []
             });
         }
     }
 
-    // ── Форматирование ───────────────────────────────────────────────────
-    function fmtSession(ms) {
-        const total = Math.floor(ms / 1000);
-        const h = Math.floor(total / 3600);
-        const m = Math.floor((total % 3600) / 60);
-        const s = total % 60;
+    // ── Утилиты ──
+    function getActiveSessionSecs() {
+        if (!sessionStart || sessionEnded) return 0;
+        let active = Date.now() - new Date(sessionStart).getTime() - totalBreakMs;
+        if (onBreak && breakStart) active -= (Date.now() - breakStart);
+        return Math.max(0, Math.floor(active / 1000));
+    }
+
+    function getUserTotalScoreSecs(u) {
+        let score = u.study_time_total || 0;
+        if (u.study_started_at && u.status === 'Учусь' && !u.is_on_break) {
+            score += Math.max(0, Math.floor((Date.now() - new Date(u.study_started_at).getTime()) / 1000));
+        }
+        return score;
+    }
+
+    function fmtTime(totalSecs) {
+        const h = Math.floor(totalSecs / 3600);
+        const m = Math.floor((totalSecs % 3600) / 60);
+        const s = Math.floor(totalSecs % 60);
         if (h > 0) return `${h} ч. ${String(m).padStart(2,'0')} мин.`;
         if (m > 0) return `${m} мин. ${String(s).padStart(2,'0')} сек.`;
         return `${s} сек.`;
-    }
-
-    function fmtStudy(since) {
-        if (!since) return '';
-        const secs = Math.max(0, Math.floor((Date.now() - new Date(since).getTime()) / 1000));
-        const h = Math.floor(secs / 3600);
-        const m = Math.floor((secs % 3600) / 60);
-        const s = secs % 60;
-        return `${h}ч ${m}м ${s}с`;
     }
 
     function isOnline(lastSeen) {
@@ -412,66 +281,130 @@
         return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
-    // ── Тик ─────────────────────────────────────────────────────────────
-    function tick() {
-        if (sessionStart && !sessionEnded) {
-            let active = Date.now() - new Date(sessionStart).getTime() - totalBreakMs;
-            if (onBreak && breakStart) active -= (Date.now() - breakStart);
-            if (active < 0) active = 0;
-            document.getElementById('sessionTimerVal').textContent = fmtSession(active);
-            document.getElementById('sessionTimer').className =
-                'session-timer' + (onBreak ? ' paused' : '');
-        }
-        document.querySelectorAll('[data-study]').forEach(el => {
-            const since = el.dataset.study;
-            if (since) el.textContent = fmtStudy(since);
-        });
+    // ── Система достижений ──
+    async function grantAchievement(id, title, icon) {
+        if (!myProfile || sessionEnded) return;
+        let achs = myProfile.achievements || [];
+        if (typeof achs === 'string') achs = JSON.parse(achs); 
+        
+        // Если уже есть - пропускаем
+        if (achs.some(a => a.id === id)) return;
+
+        // Выдаем
+        achs.push({ id, title, icon });
+        myProfile.achievements = achs;
+        renderMyAchievements();
+
+        // Сохраняем в базу
+        await sb.from('profiles').update({ achievements: achs }).eq('id', MY_ID);
     }
 
-    // ── Рендер группы ────────────────────────────────────────────────────
+    function renderMyAchievements() {
+        const box = document.getElementById('myAchievements');
+        if (!myProfile || !myProfile.achievements || myProfile.achievements.length === 0) {
+            box.innerHTML = ''; return;
+        }
+        let achs = myProfile.achievements;
+        if (typeof achs === 'string') achs = JSON.parse(achs);
+        box.innerHTML = achs.map(a => `<div class="badge" title="${a.title}">${a.icon} ${a.title}</div>`).join('');
+    }
+
+    // ── Тик (каждую секунду) ──
+    function tick() {
+        // Обновляем таймер
+        if (sessionStart && !sessionEnded) {
+            let activeSecs = getActiveSessionSecs();
+            document.getElementById('sessionTimerVal').textContent = fmtTime(activeSecs);
+            document.getElementById('sessionTimer').className = 'session-timer' + (onBreak ? ' paused' : '');
+
+            // ДОСТИЖЕНИЕ: Марафонец (2 часа = 7200 сек)
+            if (activeSecs >= 7200) grantAchievement('marathoner', 'Марафонец', '🏃');
+        }
+        
+        // Обновляем таймеры у других в списке
+        document.querySelectorAll('[data-study]').forEach(el => {
+            const since = el.dataset.study;
+            if (since) {
+                const secs = Math.max(0, Math.floor((Date.now() - new Date(since).getTime()) / 1000));
+                el.textContent = fmtTime(secs);
+            }
+        });
+
+        // Обновляем рейтинг в реальном времени
+        renderRating();
+    }
+
+    // ── Рендер Рейтинга и Группы ──
+    function renderRating() {
+        if (!groupData.length) return;
+        // Сортируем по общему времени (база + текущая сессия)
+        let sorted = [...groupData].sort((a, b) => getUserTotalScoreSecs(b) - getUserTotalScoreSecs(a));
+        
+        const el = document.getElementById('topStudentsList');
+        const medals = ['🥇', '🥈', '🥉', '4.', '5.']; // Топ 5
+        
+        let html = '';
+        for(let i=0; i < Math.min(5, sorted.length); i++) {
+            let u = sorted[i];
+            let scoreSecs = getUserTotalScoreSecs(u);
+            if (scoreSecs === 0 && i > 0) continue; // Не показываем нули кроме первого, если никого нет
+            html += `
+            <div class="rating-item">
+                <div class="medal">${medals[i]}</div>
+                <div class="rating-name">${escHtml(u.username)}</div>
+                <div class="rating-score">${fmtTime(scoreSecs)}</div>
+            </div>`;
+        }
+        el.innerHTML = html || '<div class="chat-empty">Пока нет данных</div>';
+    }
+
     function renderGroup() {
         const el = document.getElementById('groupList');
-        if (!groupData.length) {
-            el.innerHTML = '<div style="color:#c4c9d4;text-align:center;padding:14px">Пока никого нет</div>';
-            return;
-        }
+        if (!groupData.length) { el.innerHTML = '<div class="chat-empty">Пока никого нет</div>'; return; }
         el.innerHTML = groupData.map(u => {
-            const online   = isOnline(u.last_seen);
-            const color    = u.color || '#9ca3af';
+            const online = isOnline(u.last_seen);
             const studying = u.study_started_at && u.status === 'Учусь';
+            
+            // Выводим значки юзера (максимум 3)
+            let userAchs = u.achievements || [];
+            if (typeof userAchs === 'string') userAchs = JSON.parse(userAchs);
+            let achsHtml = userAchs.slice(0,3).map(a => `<span title="${a.title}">${a.icon}</span>`).join('');
+
             return `
             <div class="user-item">
-                <div class="dot-wrap">
-                    <div class="status-dot ${online ? 'online' : ''}"></div>
-                </div>
+                <div class="dot-wrap"><div class="status-dot ${online ? 'online' : ''}"></div></div>
                 <div class="user-info">
-                    <div class="user-name-text">${escHtml(u.username || '—')}</div>
+                    <div class="user-name-text">${escHtml(u.username || '—')} ${achsHtml}</div>
                 </div>
                 <div class="user-right">
-                    <div class="user-status-text">
-                        ${statusIcon(u.status)}
-                        <span style="color:${color}">${escHtml(u.status || '—')}</span>
-                    </div>
+                    <div class="user-status-text">${statusIcon(u.status)} <span style="color:${u.color||'#9ca3af'}">${escHtml(u.status || '—')}</span></div>
                     <div class="user-time" ${studying ? `data-study="${u.study_started_at}"` : ''}>
-                        ${studying ? fmtStudy(u.study_started_at) : ''}
+                        ${studying ? '...' : ''}
                     </div>
                 </div>
             </div>`;
         }).join('');
     }
 
-    // ── Кнопки ───────────────────────────────────────────────────────────
+    // ── Кнопки управления ──
     window.endSession = async () => {
         if (!confirm('Завершить сессию?')) return;
         sessionEnded = true;
         document.getElementById('sessionTimer').className = 'session-timer ended';
-        document.getElementById('btnEnd').disabled   = true;
+        document.getElementById('btnEnd').disabled = true;
         document.getElementById('btnBreak').disabled = true;
+        
+        // Добавляем текущую сессию в общую копилку базы
+        let addedSecs = getActiveSessionSecs();
+        let newTotal = (myProfile.study_time_total || 0) + addedSecs;
+
         await sb.from('profiles').update({
             status: 'Завершил', color: '#22c55e',
             last_seen: new Date().toISOString(),
             study_started_at: null, is_on_break: false, session_started_at: null,
+            study_time_total: newTotal
         }).eq('id', MY_ID);
+        
         await fetchGroup();
     };
 
@@ -484,24 +417,29 @@
             await sb.from('profiles').update({
                 status: 'Перерыв', color: '#f59e0b',
                 last_seen: new Date().toISOString(), is_on_break: true,
+                // При перерыве приостанавливаем Live-счетчик в базе, 
+                // но для простоты просто меняем статус. Live-счетчик (study_started_at) сбросим, 
+                // а время перекинем в total (упрощенная логика).
             }).eq('id', MY_ID);
         } else {
             if (breakStart) totalBreakMs += Date.now() - breakStart;
             breakStart = null; onBreak = false;
             const btn = document.getElementById('btnBreak');
             btn.textContent = '☕ Перерыв'; btn.classList.remove('resume');
+            
+            // Возобновляем учебу, ставим новый study_started_at
             await sb.from('profiles').update({
                 status: 'Учусь', color: '#4c6ef5',
                 last_seen: new Date().toISOString(), is_on_break: false,
+                study_started_at: new Date().toISOString()
             }).eq('id', MY_ID);
         }
         await fetchGroup();
     };
 
-    // ── Чат ──────────────────────────────────────────────────────────────
+    // ── Чат и Достижение Активиста ──
     async function loadMessages() {
-        const { data } = await sb.from('messages')
-            .select('*').order('created_at', { ascending: true }).limit(60);
+        const { data } = await sb.from('messages').select('*').order('created_at', { ascending: true }).limit(60);
         if (!data) return;
         const box = document.getElementById('chatMessages');
         if (!data.length) { box.innerHTML = '<div class="chat-empty">Нет сообщений</div>'; return; }
@@ -517,22 +455,32 @@
         const text  = input.value.trim();
         if (!text || !myProfile) return;
         input.value = '';
-        await sb.from('messages').insert({
-            user_id: MY_ID, username: myProfile.username, text,
-        });
+        
+        // Отправляем сообщение
+        await sb.from('messages').insert({ user_id: MY_ID, username: myProfile.username, text });
+
+        // ДОСТИЖЕНИЕ: Активист (20 сообщений)
+        let msgCount = (myProfile.message_count || 0) + 1;
+        myProfile.message_count = msgCount;
+        
+        let updateData = { message_count: msgCount };
+        await sb.from('profiles').update(updateData).eq('id', MY_ID);
+
+        if (msgCount >= 20) {
+            grantAchievement('activist', 'Активист', '💬');
+        }
     };
 
     function subscribeChat() {
         sb.channel('public:messages')
-            .on('postgres_changes',
-                { event: 'INSERT', schema: 'public', table: 'messages' },
-                () => loadMessages())
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => loadMessages())
             .subscribe();
     }
 
-    // ── Supabase данные ───────────────────────────────────────────────────
+    // ── Данные и Синхронизация ──
     async function heartbeat() {
-        if (!MY_ID) return;
+        if (!MY_ID || sessionEnded) return;
+        // Раз в 30 сек просто обновляем last_seen
         await sb.from('profiles').update({ last_seen: new Date().toISOString() }).eq('id', MY_ID);
     }
 
@@ -541,45 +489,51 @@
         if (!data) return;
         groupData = data;
         myProfile = data.find(u => u.id === MY_ID);
+        
         if (myProfile) {
             document.getElementById('myName').textContent = myProfile.username || 'Неизвестно';
-            if (myProfile.session_started_at && !sessionStart) {
-                sessionStart = myProfile.session_started_at;
-            }
+            renderMyAchievements();
+
+            if (myProfile.session_started_at && !sessionStart) sessionStart = myProfile.session_started_at;
+            
             onBreak = !!myProfile.is_on_break;
             const btn = document.getElementById('btnBreak');
             if (onBreak) { btn.textContent = '▶ Продолжить'; btn.classList.add('resume'); }
-            else          { btn.textContent = '☕ Перерыв';   btn.classList.remove('resume'); }
+            else         { btn.textContent = '☕ Перерыв';   btn.classList.remove('resume'); }
         }
         renderGroup();
+        renderRating();
     }
 
     async function startSession() {
-        const now = new Date().toISOString();
-        sessionStart = now;
+        const now = new Date();
+        const isoNow = now.toISOString();
+        sessionStart = isoNow;
+        
         await sb.from('profiles').update({
             status: 'Учусь', color: '#4c6ef5',
-            last_seen: now, session_started_at: now,
-            study_started_at: now, is_on_break: false,
+            last_seen: isoNow, session_started_at: isoNow,
+            study_started_at: isoNow, is_on_break: false,
         }).eq('id', MY_ID);
+
+        // ДОСТИЖЕНИЕ: Ранняя пташка (зашел до 08:00 утра)
+        if (now.getHours() < 8) {
+            grantAchievement('early_bird', 'Ранняя пташка', '🌅');
+        }
+
         await fetchGroup();
     }
 
-    // ── Init ─────────────────────────────────────────────────────────────
+    // ── Инициализация ──
     async function init() {
         const { data: { session } } = await sb.auth.getSession();
-
         if (!session) {
-            // Не авторизован — показываем экран входа
-            document.getElementById('loginScreen').style.display = 'flex';
-            return;
+            document.getElementById('loginScreen').style.display = 'flex'; return;
         }
 
-        // Авторизован
         MY_ID = session.user.id;
         await ensureProfile(session.user);
 
-        // Скрываем login, показываем app
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('mainApp').style.display = 'block';
 
@@ -594,9 +548,9 @@
             await startSession();
         }
 
-        setInterval(tick,       1_000);
-        setInterval(fetchGroup, 10_000);
-        setInterval(heartbeat,  30_000);
+        setInterval(tick,       1_000);  // Тик таймера и рейтинга каждую секунду
+        setInterval(fetchGroup, 10_000); // Обновление всей группы раз в 10 сек
+        setInterval(heartbeat,  30_000); // Обновление онлайна раз в 30 сек
     }
 
     init();
